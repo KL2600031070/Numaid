@@ -1,0 +1,56 @@
+.container{
+display: grid;
+    grid-template-areas: 
+    "header  header"
+    "nav  nav"
+    "content  aside"
+    "article1  aside"
+    "article2  aside"
+    "footer  footer";
+    grid-template-columns: 190px 150px;
+    grid-template-rows: 50px 50px 50px 50px 50px 50px;
+    gap: 5px;
+}
+
+.header{
+    grid-area: header;
+    background-color: #172554;
+    text-align: center;
+    padding: 10px;
+}
+.nav{
+    grid-area: nav;
+    background-color: #8896a9;
+    text-align: center;
+    padding: 10px; 
+}
+.aside{
+    grid-area: sidebar;
+    background-color: #334155;
+    text-align: center;
+    padding: 10px;
+}
+.main{
+    grid-area: content;
+    background-color:#E2E8F0 ;
+    text-align: center;
+    padding: 10px;
+}
+.footer{
+    grid-area: footer;
+    background-color: #0F766E;
+    text-align: center;
+    padding: 10px;
+}
+.article1{
+     grid-area: article1;
+    background-color: #8ce116;
+    text-align: center;
+    padding: 10px;
+}
+.article2{
+ grid-area: article2;
+    background-color: #54b65f;
+    text-align: center;
+    padding: 10px;
+}

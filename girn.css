@@ -1,0 +1,43 @@
+.container{
+    display: grid;
+    grid-template-areas: 
+    "header header header"
+    "sidebar content ads"
+    "footer footer footer";
+    grid-template-columns: 150px 1fr 120px;
+    grid-template-rows: 50px 200px 50px;
+    gap: 5px;
+}
+.header{
+    grid-area: header;
+    background-color: #172554;
+    text-align: center;
+    padding: 10px;
+}
+.sidebar{
+    grid-area: sidebar;
+    background-color: #334155;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid black;
+    border-width: 5px;
+    transition: border-width 10s ease-in-out 2s;
+}
+.content{
+    grid-area: content;
+    background-color:#E2E8F0 ;
+    text-align: center;
+    padding: 10px;
+}
+.ads{
+   grid-area: ads;
+    background-color: #8896a9;
+    text-align: center;
+    padding: 10px; 
+}
+.footer{
+    grid-area: footer;
+    background-color: #0F766E;
+    text-align: center;
+    padding: 10px;
+}

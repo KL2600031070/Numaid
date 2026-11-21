@@ -1,0 +1,18 @@
+body{
+    background-color: aqua;
+}
+label{
+    color: rgb(71, 50, 205);
+}
+table{
+    color: burlywood;
+}
+th{
+    color:#26352d;
+}
+tr{
+    color: bisque;
+}
+td{
+    color: darkcyan;
+}

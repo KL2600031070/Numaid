@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TravelEase – Book and Manage Trips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #E9EFEC; --surface: #FFFFFF; --ink: #12302E; --muted: #4F6B65; --line: #C5D5CE;
+  --accent: #D99A24; --green: #1E5B47; --err: #A23A2E;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1A19; --surface: #162725; --ink: #E9F1EE; --muted: #9DB4AE; --line: #2B4441;
+    --accent: #E9B24F; --green: #7CC3A6; --err: #F08A7E; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1A19; --surface: #162725; --ink: #E9F1EE; --muted: #9DB4AE; --line: #2B4441;
+  --accent: #E9B24F; --green: #7CC3A6; --err: #F08A7E; color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+.top {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  padding: 22px 0; border-bottom: 1px solid var(--line);
+}
+.brand { font-family: "Instrument Serif", Georgia, serif; font-size: 26px; color: var(--ink); text-decoration: none; }
+.tabs button {
+  background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted);
+  font-size: 16px; padding: 6px 2px; margin-left: 24px; cursor: pointer;
+}
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+.view { padding: 48px 0 96px; }
+h1 {
+  font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+  font-size: clamp(42px, 5.6vw, 64px); line-height: 1; margin: 0 0 14px;
+}
+.lede { color: var(--muted); font-size: 18px; max-width: 36em; margin: 0 0 40px; }
+
+.book { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 56px; align-items: start; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.f { display: grid; gap: 6px; font-weight: 600; font-size: 15px; }
+.f input, .f select {
+  width: 100%; padding: 11px 12px; font-size: 16px; font-weight: 400; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 0;
+}
+fieldset { border: 0; margin: 0 0 24px; padding: 0; }
+legend { font-weight: 600; font-size: 15px; padding: 0; margin-bottom: 6px; }
+.opt {
+  display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 12px; align-items: center;
+  padding: 12px 10px; border-top: 1px solid var(--line); cursor: pointer;
+}
+.opt:last-child { border-bottom: 1px solid var(--line); }
+.opt input { margin: 0; width: 18px; height: 18px; accent-color: var(--ink); }
+.opt:has(input:checked) { box-shadow: inset 3px 0 0 var(--accent); }
+.opt:has(input:disabled) { opacity: .45; cursor: not-allowed; }
+.opt.over { opacity: .55; }
+.opt .name { display: block; font-weight: 500; }
+.opt .meta { display: block; color: var(--muted); font-size: 14px; }
+.opt .price { color: var(--muted); font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+
+.receipt {
+  background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--accent);
+  padding: 26px 26px 22px; position: sticky; top: 16px;
+}
+.receipt h2 {
+  font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 34px; line-height: 1.1; margin: 0 0 14px;
+}
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+td { padding: 9px 0; font-size: 15px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td:last-child { text-align: right; white-space: nowrap; padding-left: 16px; }
+tr.sub td { font-weight: 600; }
+tr.total td { border-bottom: 0; border-top: 3px double var(--ink); padding-top: 14px; font-size: 19px; font-weight: 700; }
+.msg { min-height: 1.4em; color: var(--err); font-size: 14px; margin: 14px 0; }
+.btn { background: var(--ink); color: var(--surface); border: 0; padding: 14px 22px; font-weight: 600; cursor: pointer; }
+.btn.ghost { background: none; color: var(--ink); border: 1px solid var(--line); padding: 11px 18px; }
+.done { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line); }
+.done p { margin: 0 0 12px; }
+
+.stats {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 40px;
+  border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line);
+}
+.stats > div { padding: 18px 16px 18px 0; }
+.stats dt { color: var(--muted); font-size: 14px; }
+.stats dd { margin: 4px 0 0; font-family: "Instrument Serif", Georgia, serif; font-size: 28px; line-height: 1.15; }
+.rem { margin-bottom: 40px; }
+.rem h2 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 26px; margin: 0 0 10px; }
+.rem ul { list-style: none; margin: 0; padding: 0; }
+.rem li { padding: 10px 0; border-top: 1px solid var(--line); color: var(--muted); }
+.findrow { max-width: 380px; margin-bottom: 12px; }
+.f .findbox { font-weight: 400; }
+
+.trip {
+  display: grid; grid-template-columns: 110px minmax(0, 1fr) minmax(170px, auto); gap: 24px;
+  padding: 22px 0; border-bottom: 1px solid var(--line);
+}
+.trip.off { color: var(--muted); }
+.trip .id { font-family: "Instrument Serif", Georgia, serif; font-size: 34px; line-height: 1; }
+.trip .id span {
+  display: block; margin-top: 8px; font-family: "Instrument Sans", system-ui, sans-serif;
+  font-size: 13px; font-weight: 600; color: var(--green);
+}
+.trip.off .id span { color: var(--muted); }
+.trip h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 26px; line-height: 1.1; margin: 0 0 6px; }
+.trip p { margin: 2px 0; color: var(--muted); font-size: 15px; }
+.side { display: grid; gap: 8px; justify-items: end; align-content: start; }
+.paid { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.status { margin: 0; font-size: 14px; color: var(--muted); text-align: right; }
+.empty { color: var(--muted); padding: 24px 0; }
+.note { margin-top: 40px; color: var(--muted); font-size: 14px; }
+
+@media (max-width: 880px) {
+  .book { grid-template-columns: 1fr; gap: 40px; }
+  .receipt { position: static; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .trip { grid-template-columns: 1fr; gap: 12px; }
+  .side { justify-items: start; }
+  .status { text-align: left; }
+}
+@media (max-width: 560px) {
+  .row2 { grid-template-columns: 1fr; }
+  .tabs button { margin-left: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#book">TravelEase</a>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-book" data-view="book" aria-selected="true" aria-controls="book">Book a trip</button>
+      <button role="tab" id="tab-trips" data-view="trips" aria-selected="false" aria-controls="trips">My trips</button>
+    </div>
+  </header>
+
+  <section id="book" class="view" role="tabpanel" aria-labelledby="tab-book">
+    <h1>Book a trip</h1>
+    <p class="lede">Choose a package, then the hotel, transport and payment. The estimate updates as you go, and seats and rooms are checked before a booking is confirmed.</p>
+    <div class="book">
+      <div>
+        <div class="row2">
+          <label class="f">Customer name<input id="name" type="text" autocomplete="name" maxlength="60"></label>
+          <label class="f">Departure date<input id="depart" type="date"></label>
+        </div>
+        <div class="row2">
+          <label class="f">Budget per person (optional)<input id="budget" type="number" min="0" step="500" placeholder="Rs."></label>
+          <label class="f">Package type<select id="ptype"><option>Any</option><option>Domestic</option><option>International</option></select></label>
+        </div>
+        <fieldset>
+          <legend>Package</legend>
+          <div id="pkgs"></div>
+        </fieldset>
+        <div class="row2">
+          <label class="f">Travellers (1 to 6)<select id="persons"></select></label>
+        </div>
+        <fieldset>
+          <legend>Hotel category</legend>
+          <div id="hotels"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Transport, return trip</legend>
+          <div id="transport"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Payment</legend>
+          <div id="payment"></div>
+        </fieldset>
+      </div>
+
+      <aside class="receipt" aria-label="Estimate">
+        <h2>Estimate</h2>
+        <table id="invoice"><tbody></tbody></table>
+        <p class="msg" id="msg" role="alert"></p>
+        <button class="btn" id="confirm" type="button">Confirm booking</button>
+        <div id="done" class="done" role="status" hidden></div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="trips" class="view" role="tabpanel" aria-labelledby="tab-trips" hidden>
+    <h1>My trips</h1>
+    <p class="lede">Confirmed bookings, reminders for trips starting soon, and cancellations.</p>
+    <dl class="stats" id="stats"></dl>
+    <div class="rem">
+      <h2>Starting in the next 7 days</h2>
+      <ul id="reminders"></ul>
+    </div>
+    <div class="findrow">
+      <label class="f">Find a booking<input id="find" class="findbox" type="search" placeholder="Name or booking ID"></label>
+    </div>
+    <div id="list"></div>
+    <p class="note">Bookings and seat counts are saved in this browser only.</p>
+  </section>
+</div>
+
+<script>
+const PACKAGES = [
+  { name: "Goa Beach Escape", type: "Domestic", price: 12000, days: 3, seats: 10 },
+  { name: "Kerala Backwaters", type: "Domestic", price: 18000, days: 5, seats: 10 },
+  { name: "Rajasthan Heritage", type: "Domestic", price: 15000, days: 4, seats: 10 },
+  { name: "Swiss Alps Tour", type: "International", price: 150000, days: 7, seats: 6 },
+  { name: "Bali Island Holiday", type: "International", price: 85000, days: 5, seats: 6 }
+];
+const HOTELS = [
+  { name: "Standard", rate: 2500, rooms: 5 },
+  { name: "Deluxe", rate: 4000, rooms: 3 },
+  { name: "Luxury", rate: 7000, rooms: 2 }
+];
+const TRANSPORT = [
+  { name: "Bus", fare: 800 },
+  { name: "Train", fare: 1200 },
+  { name: "Flight", fare: 4500 }
+];
+const PAYMENT = [
+  { name: "Card", fee: 0.02 },
+  { name: "UPI", fee: 0 },
+  { name: "Net banking", fee: 0.01 }
+];
+const TAX_RATE = 0.05, REFUND_SHARE = 0.9, MAX_TRAVELLERS = 6, KEY = "travelease-v2";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const money = n => "Rs." + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+const DAY = 86400000;
+const today = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
+const parseDay = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const niceDate = s => parseDay(s).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+const daysFromToday = s => Math.round((parseDay(s) - today()) / DAY);
+const refundOf = b => b.total * REFUND_SHARE;
+
+function freshState() {
+  return { seats: PACKAGES.map(p => p.seats), rooms: HOTELS.map(h => h.rooms), bookings: [], nextId: 1001 };
+}
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.bookings) && s.seats && s.seats.length === PACKAGES.length
+        && s.rooms && s.rooms.length === HOTELS.length) return s;
+  } catch (e) { /* fall through to fresh data */ }
+  return freshState();
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable: keep working in memory */ }
+}
+const state = loadState();
+let pendingCancel = null;
+
+function priceFor(pi, persons, hi, ti, mi) {
+  const p = PACKAGES[pi], h = HOTELS[hi], t = TRANSPORT[ti], m = PAYMENT[mi];
+  const nights = p.days - 1;
+  const rooms = Math.floor((persons + 1) / 2);
+  const packageCost = p.price * persons;
+  const accommodation = rooms * nights * h.rate;
+  const transportCost = t.fare * persons * 2;
+  const subtotal = packageCost + accommodation + transportCost;
+  const fee = subtotal * m.fee;
+  const tax = subtotal * TAX_RATE;
+  return { nights, rooms, packageCost, accommodation, transportCost, subtotal, fee, tax, total: subtotal + fee + tax };
+}
+
+function draft() {
+  return {
+    pkg: Number(document.querySelector('input[name="pkg"]:checked').value),
+    hotel: Number(document.querySelector('input[name="hotel"]:checked').value),
+    transport: Number(document.querySelector('input[name="transport"]:checked').value),
+    payment: Number(document.querySelector('input[name="payment"]:checked').value),
+    persons: Number($("persons").value),
+    departure: $("depart").value
+  };
+}
+
+function problemFor(d, rooms) {
+  const seatsLeft = state.seats[d.pkg], roomsLeft = state.rooms[d.hotel];
+  if (seatsLeft === 0) return "This package is sold out.";
+  if (d.persons > seatsLeft) return `Only ${plural(seatsLeft, "seat")} left for this package.`;
+  if (rooms > roomsLeft) return `Not enough rooms in this category: ${roomsLeft} left, ${rooms} needed.`;
+  if (!d.departure) return "Choose a departure date.";
+  if (daysFromToday(d.departure) < 0) return "That departure date has passed. Choose today or a later date.";
+  return "";
+}
+
+function addRow(label, value, cls) {
+  const tr = document.createElement("tr");
+  if (cls) tr.className = cls;
+  const a = document.createElement("td");
+  a.textContent = label;
+  const b = document.createElement("td");
+  b.textContent = value;
+  tr.append(a, b);
+  return tr;
+}
+
+function quote() {
+  const d = draft();
+  const b = priceFor(d.pkg, d.persons, d.hotel, d.transport, d.payment);
+  $("msg").textContent = problemFor(d, b.rooms);
+  const fare = TRANSPORT[d.transport].fare;
+  const rows = [
+    [`${PACKAGES[d.pkg].name}, ${d.persons} × ${money(PACKAGES[d.pkg].price)}`, b.packageCost],
+    [`Accommodation, ${plural(b.rooms, "room")} × ${plural(b.nights, "night")}`, b.accommodation],
+    [`Transport, ${d.persons} × ${money(fare)} × 2 (return)`, b.transportCost],
+    ["Subtotal", b.subtotal, "sub"],
+    [`Payment fee, ${PAYMENT[d.payment].name}`, b.fee],
+    ["Tax, 5% of subtotal", b.tax],
+    ["Total payable", b.total, "total"]
+  ];
+  $("invoice").querySelector("tbody").replaceChildren(...rows.map(([l, v, c]) => addRow(l, money(v), c)));
+}
+
+function addOption(box, group, value, name, meta, price, checked) {
+  const label = document.createElement("label");
+  label.className = "opt";
+  label.innerHTML =
+    `<input type="radio" name="${group}" value="${value}"${checked ? " checked" : ""}>` +
+    `<span><span class="name">${esc(name)}</span><span class="meta">${esc(meta)}</span></span>` +
+    `<span class="price">${esc(price)}</span>`;
+  box.append(label);
+  return label;
+}
+
+const pkgLabels = PACKAGES.map((p, i) => addOption($("pkgs"), "pkg", i, p.name, "", money(p.price) + " per person", i === 1));
+const hotelLabels = HOTELS.map((h, i) => addOption($("hotels"), "hotel", i, h.name, "", money(h.rate) + " per room per night", i === 0));
+TRANSPORT.forEach((t, i) => addOption($("transport"), "transport", i, t.name, "One way, per person", money(t.fare), i === 0));
+PAYMENT.forEach((m, i) => addOption($("payment"), "payment", i,
+  m.name, m.fee ? "Fee on the subtotal" : "No fee", m.fee ? (m.fee * 100) + "% fee" : "Free", i === 0));
+
+for (let n = 1; n <= MAX_TRAVELLERS; n++) $("persons").add(new Option(String(n), String(n)));
+$("persons").value = "2";
+
+function refresh() {
+  const budget = Number($("budget").value);
+  const wanted = $("ptype").value;
+  PACKAGES.forEach((p, i) => {
+    const lab = pkgLabels[i], left = state.seats[i], input = lab.querySelector("input");
+    lab.querySelector(".meta").textContent = `${p.type}, ${p.days} days, ${plural(left, "seat")} left`;
+    input.disabled = left === 0;
+    lab.hidden = wanted !== "Any" && wanted !== p.type;
+    lab.classList.toggle("over", budget > 0 && p.price > budget);
+  });
+  const current = document.querySelector('input[name="pkg"]:checked');
+  if (current && current.closest("label").hidden) {
+    const alt = pkgLabels.find(l => !l.hidden && !l.querySelector("input").disabled);
+    if (alt) alt.querySelector("input").checked = true;
+  }
+  HOTELS.forEach((h, i) => {
+    hotelLabels[i].querySelector(".meta").textContent = plural(state.rooms[i], "room") + " left";
+  });
+  quote();
+}
+
+function showDone(rec) {
+  const done = $("done");
+  done.hidden = false;
+  done.innerHTML = `<p><strong>Booking ${rec.id} is confirmed</strong> for ${esc(rec.name)}. Total paid: ${money(rec.total)}.</p>` +
+    `<button class="btn ghost" type="button" data-go="trips">View my trips</button>`;
+}
+
+function book() {
+  const name = $("name").value.trim().replace(/\s+/g, " ");
+  if (!name) { $("msg").textContent = "Enter the customer’s name."; return; }
+  if (!/^[A-Za-z ]+$/.test(name)) { $("msg").textContent = "Name can contain only letters and spaces."; return; }
+  const d = draft();
+  const b = priceFor(d.pkg, d.persons, d.hotel, d.transport, d.payment);
+  const problem = problemFor(d, b.rooms);
+  if (problem) { $("msg").textContent = problem; return; }
+  const rec = { id: state.nextId, name, pkg: d.pkg, hotel: d.hotel, transport: d.transport, payment: d.payment,
+    persons: d.persons, departure: d.departure, cancelled: false, refund: 0, ...b };
+  state.nextId += 1;
+  state.seats[d.pkg] -= d.persons;
+  state.rooms[d.hotel] -= b.rooms;
+  state.bookings.push(rec);
+  save();
+  $("name").value = "";
+  refresh();
+  showDone(rec);
+}
+
+function cancelBooking(rec) {
+  rec.cancelled = true;
+  rec.refund = refundOf(rec);
+  state.seats[rec.pkg] += rec.persons;
+  state.rooms[rec.hotel] += rec.rooms;
+  save();
+  refresh();
+}
+
+function card(b) {
+  const returns = isoOf(addDays(parseDay(b.departure), b.nights));
+  let actions;
+  if (b.cancelled) {
+    actions = `<p class="status">Refunded ${money(b.refund)}</p>`;
+  } else if (pendingCancel === b.id) {
+    actions = `<p class="status">Refund ${money(refundOf(b))}, after the 10% charge.</p>` +
+      `<button class="btn" type="button" data-act="cancel" data-id="${b.id}">Confirm cancellation</button>` +
+      `<button class="btn ghost" type="button" data-act="keep" data-id="${b.id}">Keep booking</button>`;
+  } else {
+    actions = `<button class="btn ghost" type="button" data-act="ask" data-id="${b.id}">Cancel booking</button>`;
+  }
+  return `<article class="trip${b.cancelled ? " off" : ""}">
+    <div class="id">${b.id}<span>${b.cancelled ? "Cancelled" : "Confirmed"}</span></div>
+    <div class="info">
+      <h3>${esc(b.name)}</h3>
+      <p>${esc(PACKAGES[b.pkg].name)}, ${plural(b.persons, "traveller")}, ${esc(HOTELS[b.hotel].name)} hotel, ${esc(TRANSPORT[b.transport].name)}</p>
+      <p>Departs ${niceDate(b.departure)}, returns ${niceDate(returns)}</p>
+    </div>
+    <div class="side"><p class="paid">${money(b.total)} paid</p>${actions}</div>
+  </article>`;
+}
+
+function renderTrips() {
+  const all = state.bookings;
+  const active = all.filter(b => !b.cancelled);
+  const revenue = active.reduce((sum, b) => sum + b.total, 0);
+  const counts = PACKAGES.map((p, i) => active.filter(b => b.pkg === i).length);
+  const top = Math.max(...counts);
+  const favourite = top > 0 ? PACKAGES[counts.indexOf(top)].name : "None yet";
+  $("stats").innerHTML = [
+    ["Active trips", active.length],
+    ["Cancelled", all.length - active.length],
+    ["Revenue, active trips", money(revenue)],
+    ["Most booked", favourite]
+  ].map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
+
+  const soon = active
+    .map(b => ({ b, days: daysFromToday(b.departure) }))
+    .filter(x => x.days >= 0 && x.days <= 7)
+    .sort((x, y) => x.days - y.days);
+  $("reminders").innerHTML = soon.length
+    ? soon.map(({ b, days }) => `<li>Booking ${b.id} for ${esc(b.name)} starts ${niceDate(b.departure)}, ${days === 0 ? "today" : "in " + plural(days, "day")}.</li>`).join("")
+    : "<li>No trips start in the next 7 days.</li>";
+
+  const q = $("find").value.trim().toLowerCase();
+  const shown = all
+    .filter(b => !q || String(b.id).includes(q) || b.name.toLowerCase().includes(q))
+    .slice().reverse();
+  $("list").innerHTML = shown.length
+    ? shown.map(card).join("")
+    : `<p class="empty">${all.length ? "No bookings match that search." : "No bookings yet. Book a trip to see it here."}</p>`;
+}
+
+function showView(name) {
+  $("book").hidden = name !== "book";
+  $("trips").hidden = name !== "trips";
+  document.querySelectorAll('[role="tab"]').forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === name)));
+  if (name === "trips") renderTrips();
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('[role="tab"]').forEach(t => t.addEventListener("click", () => showView(t.dataset.view)));
+document.querySelectorAll("#book input, #book select").forEach(el => {
+  el.addEventListener("input", refresh);
+  el.addEventListener("change", refresh);
+});
+$("confirm").addEventListener("click", book);
+$("find").addEventListener("input", renderTrips);
+$("done").addEventListener("click", e => { if (e.target.closest("[data-go]")) showView("trips"); });
+$("list").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-act]");
+  if (!btn) return;
+  const id = Number(btn.dataset.id);
+  const rec = state.bookings.find(b => b.id === id);
+  if (!rec) return;
+  if (btn.dataset.act === "ask") pendingCancel = id;
+  if (btn.dataset.act === "keep") pendingCancel = null;
+  if (btn.dataset.act === "cancel") { pendingCancel = null; cancelBooking(rec); }
+  renderTrips();
+});
+
+$("depart").min = isoOf(today());
+$("depart").value = isoOf(addDays(today(), 1));
+refresh();
+</script>
+</body>
+</html>

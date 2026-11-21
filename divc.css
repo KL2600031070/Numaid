@@ -1,0 +1,19 @@
+.flex-item{
+    display: grid ;
+    grid-template-rows: 100px, 100px;
+    grid-gap: 10px;
+    justify-content: space-around;
+}
+/*.flex-item{
+    background-color: aquamarine;
+    padding: 20px;
+    margin: 10px;
+    border: 1px solid red;
+}*/
+.flex-container div
+{
+    background-color: #0a9726f2;
+    padding: 20px;
+    text-align: center;
+    text-color: blue;
+}
